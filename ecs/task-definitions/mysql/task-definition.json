@@ -1,0 +1,48 @@
+{
+  "family": "mysql",
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "mysql",
+      "image": "mysql:5.7",
+      "memory": 1024,
+      "cpu": 512,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3306
+        }
+      ],
+      "secrets": [
+        {
+          "name": "MYSQL_DATABASE",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:633856414254:secret:mysql/credentials"
+        },
+        {
+          "name": "MYSQL_USER",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:633856414254:secret:mysql/credentials"
+        },
+        {
+          "name": "MYSQL_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:633856414254:secret:mysql/credentials"
+        },
+        {
+          "name": "MYSQL_ROOT_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:633856414254:secret:mysql/credentials"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mysql",
+          "awslogs-region": "eu-west-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::633856414254:role/ecsTaskExecutionRole"
+}

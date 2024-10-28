@@ -1,0 +1,94 @@
+import json
+
+from flask import request, jsonify, current_app
+
+from app import db
+from interaction.views import interaction_blueprint
+from interaction.models import Interaction
+from helpers.token import TokenManager
+from sqlalchemy.sql import text
+from operator import itemgetter
+from sqlalchemy import asc, desc
+
+from auth.decorators import policy_required
+
+@interaction_blueprint.route("", methods=["GET"])
+# @policy_required("interaction", "list")
+def get_interactions():
+    
+    db_session = db.session()
+    token_manager = TokenManager()
+    sort = request.args.get('sort', None)
+    filters = request.args.getlist('filter')
+    from_dt = request.args.get('from')
+    to_dt = request.args.get('to')
+    continuation_token = request.args.get('cursor', None)
+    max_keys = request.args.get('max_keys', 1000)
+    
+    query = db_session.query(Interaction)
+    
+    # if from_dt and to_dt:
+    #     # should be in YYYY-MM-DD HH:MM:SS format i think
+    #     query = query.filter(Interaction.start_time.between(from_dt, to_dt))
+
+    # if filters:
+    #     for filter in filters:
+    #         filter = json.loads(filter)
+    #         column, operator, value = itemgetter('column', 'operator', 'value')(filter)
+    #         if operator == "like":
+    #             query = query.filter(getattr(Interaction, column).like(f'%{value}%'))
+    #         if operator == "equals":
+    #             query = query.filter(getattr(Interaction, column) == value)
+    
+    # if sort:
+    #     sort = json.loads(sort)
+    #     column, operator, value = itemgetter('column', 'operator', 'value')(sort)
+    #     sort_direction = desc if value == "desc" else asc
+        
+    #     query = query.order_by(sort_direction(getattr(Interaction, column)))
+    # else:
+    #     query = query.order_by(Interaction.start_time.desc())
+        
+    # if continuation_token:
+    #     continuation_token_decoded = json.loads(token_manager.decode(continuation_token))
+    #     min_id = continuation_token_decoded["min_id"]
+    #     max_id = continuation_token_decoded["max_id"]
+    #     query = query.filter(Interaction.id > max_id)
+        
+    # # finally limit it by max keys
+    # query = query.limit(max_keys)
+    
+    interactions = query.all()
+    
+    current_app.logger.info(interactions)
+    
+    interactions = [i.serialize() for i in interactions]
+    
+    current_app.logger.info(interactions)
+    
+    # if not interactions:
+    #     next_continuation_token = None
+    #     is_truncated = False
+    # else:
+    #     max_id = max(interactions, key=lambda x:x['id'])["id"]
+    #     min_id = min(interactions, key=lambda x:x['id'])["id"]
+        
+    #     next_continuation_token = token_manager.encode(
+    #         json.dumps({
+    #             "min_id": min_id,
+    #             "max_id": max_id
+    #         })
+    #     )
+    #     is_truncated = True
+    
+    # response = {
+    #     "metadata": {
+    #         "continuation_token": continuation_token,
+    #         "next_continuation_token": next_continuation_token,
+    #         "max_keys": max_keys,
+    #         "is_truncated": is_truncated
+    #     },
+    #     "interactions": interactions
+    # }
+    
+    return jsonify(interactions), 200

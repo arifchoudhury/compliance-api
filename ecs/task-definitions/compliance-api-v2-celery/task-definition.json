@@ -1,0 +1,36 @@
+{
+  "family": "compliance-api-v2-celery",
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "compliance-api-v2-celery",
+      "image": "633856414254.dkr.ecr.eu-west-2.amazonaws.com/compliance-api-v2-celery:latest",
+      "memory": 512,
+      "cpu": 256,
+      "essential": true,
+      "environment": [
+        {
+          "name": "S3_BUCKET",
+          "value": "<your-s3-bucket>"
+        },
+        {
+          "name": "REDIS_HOST",
+          "value": "redis"
+        },
+        {
+          "name": "RABBITMQ_HOST",
+          "value": "rabbitmq"
+        },
+        {
+          "name": "POSTGRES_HOST",
+          "value": "postgresql"
+        }
+      ]
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::633856414254:role/ecsTaskExecutionRoleWithS3Access",
+  "taskRoleArn": "arn:aws:iam::633856414254:role/ecsTaskExecutionRoleWithS3Access"
+}

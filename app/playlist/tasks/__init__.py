@@ -1,0 +1,1 @@
+from .associate_interactions import associate_interactions_to_playlist

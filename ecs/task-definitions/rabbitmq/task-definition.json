@@ -1,0 +1,43 @@
+{
+  "family": "rabbitmq",
+  "networkMode": "awsvpc",
+  "executionRoleArn": "arn:aws:iam::633856414254:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "rabbitmq",
+      "image": "rabbitmq:latest",
+      "memory": 512,
+      "cpu": 256,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5672
+        },
+        {
+          "containerPort": 15672
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/rabbitmq",
+          "awslogs-region": "eu-west-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "secrets": [
+        {
+          "name": "RABBITMQ_DEFAULT_USER",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:633856414254:secret:rabbitmq/credentials-IHuGLI"
+        },
+        {
+          "name": "RABBITMQ_DEFAULT_PASS",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:633856414254:secret:rabbitmq/credentials-IHuGLI"
+        }
+      ]
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512"
+}

@@ -1,0 +1,67 @@
+services:
+  compliance-api:
+    image: 633856414254.dkr.ecr.eu-west-2.amazonaws.com/compliance-api-v2:809a01985eca451e01b0135e03fd5c54b5a21f86
+    env_file: .env
+    ports:
+      - "5010:5000"
+    volumes:
+      - .:/app # Mount the current directory to /app in the container
+    networks:
+      - project_bala
+
+  compliance-api-celery:
+    image: 633856414254.dkr.ecr.eu-west-2.amazonaws.com/compliance-api-v2-celery:809a01985eca451e01b0135e03fd5c54b5a21f86
+    env_file: .env
+    depends_on:
+      - compliance-api
+      # - redis
+      # - rabbitmq
+    networks:
+      - project_bala
+
+  compliance-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+    networks:
+      - project_bala
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+    networks:
+      - project_bala
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "5672:5672"
+      - "15672:15672" # Management UI
+    networks:
+      - project_bala
+
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - project_bala
+    volumes:
+      #- ./nginx-compliance-api.conf:/etc/nginx/conf.d/default.conf
+      #- ./nginx-healthcheck.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+
+volumes:
+  postgres_data:
+
+networks:
+  project_bala:

@@ -1,0 +1,82 @@
+# name: CI/CD Pipeline
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   workflow_dispatch:
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Check out code
+#         uses: actions/checkout@v3
+
+#       - name: Set up AWS CLI
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_REGION }}
+
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v2
+
+#       - name: Log in to Amazon ECR
+#         run: |
+#           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REGISTRY }}
+
+#       - name: Build Flask Docker image
+#         run: |
+#           docker build -t ${{ secrets.AWS_ECR_REGISTRY }}/compliance-api-v2:${{ github.sha }} \
+#             --build-arg GITHUB_TOKEN=${{ secrets.GH_TOKEN }} \
+#             -f docker/flask/Dockerfile .
+
+#       - name: Push Flask Docker image to Amazon ECR
+#         run: |
+#           docker push ${{ secrets.AWS_ECR_REGISTRY }}/compliance-api-v2:${{ github.sha }}
+
+      # - name: Build Celery Docker image
+      #   run: |
+      #     docker build -t ${{ secrets.AWS_ECR_REGISTRY }}/compliance-api-v2-celery:${{ github.sha }} \
+      #       --build-arg GITHUB_TOKEN=${{ secrets.GH_TOKEN }} \
+      #       -f docker/celery/Dockerfile .
+
+      # - name: Push Celery Docker image to Amazon ECR
+      #   run: |
+      #     docker push ${{ secrets.AWS_ECR_REGISTRY }}/compliance-api-v2-celery:${{ github.sha }}
+
+      # - name: Update ECS Task Definitions
+      #   run: |
+      #     # Replace placeholders with your actual values
+      #     CLUSTER_NAME="compliance-cluster"
+      #     SERVICE_NAME_API="compliance-api-v2-service"
+      #     SERVICE_NAME_CELERY="compliance-api-v2-celery-service"
+      #     SERVICE_NAME_REDIS="redis-service"
+      #     SERVICE_NAME_RABBITMQ="rabbitmq-service"
+      #     SERVICE_NAME_POSTGRESQL="postgresql-service"
+
+      #     TASK_DEFINITION_API="ecs/task-definitions/compliance-api-v2/task-definition.json"
+      #     TASK_DEFINITION_CELERY="ecs/task-definitions/compliance-api-v2-celery/task-definition.json"
+      #     TASK_DEFINITION_REDIS="ecs/task-definitions/redis/task-definition.json"
+      #     TASK_DEFINITION_RABBITMQ="ecs/task-definitions/rabbitmq/task-definition.json"
+      #     TASK_DEFINITION_POSTGRESQL="ecs/task-definitions/postgresql/task-definition.json"
+
+      #     # Create new task definition revisions
+      #     TASK_DEFINITION_API_ARN=$(aws ecs register-task-definition --cli-input-json file://$TASK_DEFINITION_API --output text --query 'taskDefinition.taskDefinitionArn')
+      #     TASK_DEFINITION_CELERY_ARN=$(aws ecs register-task-definition --cli-input-json file://$TASK_DEFINITION_CELERY --output text --query 'taskDefinition.taskDefinitionArn')
+      #     TASK_DEFINITION_REDIS_ARN=$(aws ecs register-task-definition --cli-input-json file://$TASK_DEFINITION_REDIS --output text --query 'taskDefinition.taskDefinitionArn')
+      #     TASK_DEFINITION_RABBITMQ_ARN=$(aws ecs register-task-definition --cli-input-json file://$TASK_DEFINITION_RABBITMQ --output text --query 'taskDefinition.taskDefinitionArn')
+      #     TASK_DEFINITION_POSTGRESQL_ARN=$(aws ecs register-task-definition --cli-input-json file://$TASK_DEFINITION_POSTGRESQL --output text --query 'taskDefinition.taskDefinitionArn')
+
+      #     # Update ECS services to use the new task definitions
+      #     aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME_API --task-definition $TASK_DEFINITION_API_ARN
+      #     aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME_CELERY --task-definition $TASK_DEFINITION_CELERY_ARN
+      #     aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME_REDIS --task-definition $TASK_DEFINITION_REDIS_ARN
+      #     aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME_RABBITMQ --task-definition $TASK_DEFINITION_RABBITMQ_ARN
+      #     aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME_POSTGRESQL --task-definition $TASK_DEFINITION_POSTGRESQL_ARN
+
+      # - name: Logout of Amazon ECR
+      #   run: docker logout ${{ secrets.AWS_ECR_REGISTRY }}

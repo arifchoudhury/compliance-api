@@ -1,0 +1,24 @@
+flask
+flask_sqlalchemy
+flask_migrate
+flask_cors
+flask_marshmallow
+Flask-JWT-Extended
+marshmallow-sqlalchemy
+marshmallow
+psycopg2-binary
+celery
+redis
+python-dotenv
+Flask-Bcrypt
+boto3
+redis 
+flask-caching
+email_validator
+WTForms-JSON # TODO remember to remove
+requests
+# pymysql
+# Add the private repository with the token placeholder
+# git+https://${GITHUB_TOKEN}@github.com/arifchoudhury/compliance_models.git#egg=compliance_models
+git+https://${GITHUB_TOKEN}@github.com/arifchoudhury/compliance-lib-schemas.git#egg=compliance-lib-schemas
+git+https://${GITHUB_TOKEN}@github.com/arifchoudhury/compliance-service-models.git#egg=compliance-service-models

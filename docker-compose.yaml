@@ -1,0 +1,82 @@
+version: "3.8" # Specify version
+
+services:
+  compliance-api:
+    build:
+      context: .
+      dockerfile: docker/flask/Dockerfile
+      args:
+        - GITHUB_TOKEN=${GITHUB_TOKEN}
+    env_file: .env
+    ports:
+      - "5010:5000"
+    volumes:
+      - .:/app # Mount the current directory to /app in the container
+    networks:
+      - project_bala
+    # command: ["pip", "list"] # Override CMD to print the installed packages
+
+  compliance-api-celery:
+    build:
+      context: .
+      dockerfile: docker/celery/Dockerfile
+      args:
+        - GITHUB_TOKEN=${GITHUB_TOKEN}
+    env_file: .env
+    depends_on:
+      - compliance-api
+      # - redis
+      # - rabbitmq
+    networks:
+      - project_bala
+    volumes:
+      - .:/app # Mount the current directory to /app in the container
+
+  compliance-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+    networks:
+      - project_bala
+
+  compliance-db-mysql:
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: mydatabase
+    ports:
+      - "3306:3306"
+    networks:
+      - project_bala
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+    networks:
+      - project_bala
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "5672:5672"
+      - "15672:15672" # Management UI
+    networks:
+      - project_bala
+
+volumes:
+  postgres_data:
+
+networks:
+  project_bala:

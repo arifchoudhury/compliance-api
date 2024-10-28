@@ -1,0 +1,60 @@
+{
+  "family": "postgresql",
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "postgresql",
+      "image": "postgres:13",
+      "memory": 512,
+      "cpu": 256,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5432
+        }
+      ],
+      "secrets": [
+        {
+          "name": "POSTGRES_DB",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:633856414254:secret:postgresql/credentials-XUdaaP"
+        },
+        {
+          "name": "POSTGRES_USER",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:633856414254:secret:postgresql/credentials-XUdaaP"
+        },
+        {
+          "name": "POSTGRES_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:633856414254:secret:postgresql/credentials-XUdaaP"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/postgresql",
+          "awslogs-region": "eu-west-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "mountPoints": [
+        {
+          "sourceVolume": "postgres-data",
+          "containerPath": "/var/lib/postgresql/data"
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "name": "postgres-data",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "fs-0fecae0c24277d964",
+        "rootDirectory": "/",
+        "transitEncryption": "ENABLED"
+      }
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::633856414254:role/ecsTaskExecutionRole"
+}
