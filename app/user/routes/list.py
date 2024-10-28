@@ -10,6 +10,8 @@ from sqlalchemy.sql import text
 from operator import itemgetter
 from sqlalchemy import asc, desc
 
+from compliance_lib_models import SessionLocal
+from compliance_service_models import get_users
 
 @user_blueprint.route("", methods=["GET"])
 def list_users():
